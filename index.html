@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  body { background: #f8f8f8; padding: 20px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  .title-box { text-align: center; margin-bottom: 24px; padding: 24px 20px 20px; background: #fff; border-radius: 16px; border: 1px solid #e8e8e8; }
+  .title-badge { display: inline-block; background: #EBF4FF; color: #185FA5; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-bottom: 10px; letter-spacing: 0.5px; }
+  .title-main { font-size: 22px; font-weight: 700; color: #111; line-height: 1.4; margin-bottom: 8px; }
+  .title-main span { color: #378ADD; }
+  .title-sub { font-size: 13px; color: #888; line-height: 1.6; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .card { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 16px 18px; }
+  .card-label { font-size: 12px; color: #888; margin-bottom: 6px; }
+  .card-value { font-size: 20px; font-weight: 600; color: #111; margin-bottom: 10px; }
+  .card input[type=range] { width: 100%; accent-color: #378ADD; }
+  .range-hint { display: flex; justify-content: space-between; font-size: 11px; color: #bbb; margin-top: 4px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+  .stat { background: #f3f3f3; border-radius: 8px; padding: 12px 14px; }
+  .stat-label { font-size: 11px; color: #888; margin-bottom: 3px; }
+  .stat-val { font-size: 16px; font-weight: 600; }
+  .legend { display: flex; gap: 16px; margin-bottom: 10px; font-size: 12px; color: #666; }
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .dot { width: 10px; height: 10px; border-radius: 2px; }
+  .chart-wrap { position: relative; width: 100%; height: 300px; }
+  .milestones { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-top: 16px; }
+  .ms { background: #f3f3f3; border-radius: 8px; padding: 10px 12px; }
+  .ms-yr { font-size: 11px; color: #888; margin-bottom: 2px; }
+  .ms-val { font-size: 14px; font-weight: 600; color: #185FA5; }
+  .ms-gain { font-size: 11px; color: #0F6E56; }
+  .note { margin-top: 14px; font-size: 11px; color: #bbb; line-height: 1.6; }
+  @media (max-width: 480px) {
+    .stats { grid-template-columns: 1fr 1fr; }
+    .grid2 { grid-template-columns: 1fr; }
+    .title-main { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="title-box">
+    <div class="title-badge">복리 시뮬레이션 계산기</div>
+    <div class="title-main">10만원이 <span>7,000만원</span>이 된다고?<br>복리의 마법, 직접 확인해보세요!</div>
+    <div class="title-sub">초기 투자금 · 월 납입금 · 수익률 · 기간을 설정하면<br>내 투자금이 얼마나 불어나는지 바로 보여드려요 💰</div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-label">초기 투자금</div>
+      <div class="card-value" id="d-init">1,000,000원</div>
+      <input type="range" id="s-init" min="0" max="200" step="1" value="28">
+      <div class="range-hint"><span>10만원</span><span>3억원</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">월 납입금</div>
+      <div class="card-value" id="d-monthly">100,000원</div>
+      <input type="range" id="s-monthly" min="0" max="200" step="1" value="34">
+      <div class="range-hint"><span>1만원</span><span>1,000만원</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">연 수익률</div>
+      <div class="card-value" id="d-rate">10%</div>
+      <input type="range" id="s-rate" min="4" max="14" step="1" value="10">
+      <div class="range-hint"><span>4%</span><span>14%</span></div>
+    </div>
+    <div class="card">
+      <div class="card-label">투자 기간</div>
+      <div class="card-value" id="d-years">20년</div>
+      <input type="range" id="s-years" min="5" max="30" step="1" value="20">
+      <div class="range-hint"><span>5년</span><span>30년</span></div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-label">총 납입 원금</div><div class="stat-val" id="st-p" style="color:#111"></div></div>
+    <div class="stat"><div class="stat-label">최종 평가액</div><div class="stat-val" id="st-f" style="color:#185FA5"></div></div>
+    <div class="stat"><div class="stat-label">총 수익</div><div class="stat-val" id="st-g" style="color:#0F6E56"></div></div>
+    <div class="stat"><div class="stat-label">수익률</div><div class="stat-val" id="st-r" style="color:#0F6E56"></div></div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot" style="background:#378ADD"></span>투자 평가액</span>
+    <span><span class="dot" style="background:#C0DD97"></span>수익 (복리)</span>
+    <span><span class="dot" style="background:#D3D1C7"></span>납입 원금</span>
+  </div>
+  <div class="chart-wrap"><canvas id="gc"></canvas></div>
+  <div class="milestones" id="milestones"></div>
+  <div class="note">※ S&P500 역사적 연평균 수익률(CAGR) 약 10%(배당 재투자 포함). 환율·세금·수수료 미반영. 과거 성과가 미래를 보장하지 않습니다.</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+let chart;
+function logMap(v,min,max,s){return v===0?min:Math.exp(Math.log(min)+(Math.log(max)-Math.log(min))*v/s);}
+function nice(v){
+  if(v>=100000000) return (v/100000000>=10?Math.round(v/100000000):(v/100000000).toFixed(1))+'억원';
+  if(v>=10000000) return (v/10000000).toFixed(1)+'천만원';
+  if(v>=10000) return Math.round(v/10000)+'만원';
+  return Math.round(v).toLocaleString()+'원';
+}
+function rnd(v){
+  if(v>=100000000)return Math.round(v/10000000)*10000000;
+  if(v>=10000000)return Math.round(v/1000000)*1000000;
+  if(v>=1000000)return Math.round(v/100000)*100000;
+  if(v>=100000)return Math.round(v/10000)*10000;
+  return Math.round(v/1000)*1000;
+}
+function calc(init,monthly,rate,years){
+  const mr=rate/12/100,labels=[],pris=[],profs=[],tots=[];
+  let acc=init;
+  for(let m=1;m<=years*12;m++){
+    acc=acc*(1+mr)+monthly;
+    if(m%12===0){const yr=m/12,p=init+monthly*m,t=Math.round(acc);labels.push(yr+'년');pris.push(p);profs.push(t-p);tots.push(t);}
+  }
+  return{labels,pris,profs,tots,final:Math.round(acc),totalP:init+monthly*years*12};
+}
+function update(){
+  const iv=rnd(logMap(+document.getElementById('s-init').value,100000,300000000,200));
+  const mv=rnd(logMap(+document.getElementById('s-monthly').value,10000,10000000,200));
+  const rate=+document.getElementById('s-rate').value;
+  const years=+document.getElementById('s-years').value;
+  document.getElementById('d-init').textContent=iv.toLocaleString()+'원';
+  document.getElementById('d-monthly').textContent=mv.toLocaleString()+'원';
+  document.getElementById('d-rate').textContent=rate+'%';
+  document.getElementById('d-years').textContent=years+'년';
+  const d=calc(iv,mv,rate,years);
+  const gain=d.final-d.totalP,roi=Math.round(gain/d.totalP*100);
+  document.getElementById('st-p').textContent=nice(d.totalP);
+  document.getElementById('st-f').textContent=nice(d.final);
+  document.getElementById('st-g').textContent='+'+nice(gain);
+  document.getElementById('st-r').textContent='+'+roi+'%';
+  const ms=document.getElementById('milestones');ms.innerHTML='';
+  [5,10,15,20,25,30].filter(y=>y<=years).forEach(y=>{
+    const v=d.tots[y-1],p=d.pris[y-1];
+    const div=document.createElement('div');div.className='ms';
+    div.innerHTML=`<div class="ms-yr">${y}년 후</div><div class="ms-val">${nice(v)}</div><div class="ms-gain">+${nice(v-p)}</div>`;
+    ms.appendChild(div);
+  });
+  if(chart){chart.data.labels=d.labels;chart.data.datasets[0].data=d.pris;chart.data.datasets[1].data=d.profs;chart.update();}
+  else{
+    chart=new Chart(document.getElementById('gc'),{
+      type:'bar',
+      data:{labels:d.labels,datasets:[
+        {label:'납입 원금',data:d.pris,backgroundColor:'#D3D1C7',borderRadius:3,stack:'a'},
+        {label:'수익 (복리)',data:d.profs,backgroundColor:'#378ADD',borderRadius:3,stack:'a'}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+nice(c.raw),footer:i=>'합계: '+nice(i.reduce((s,x)=>s+x.raw,0))}}},
+        scales:{
+          x:{stacked:true,ticks:{font:{size:11},autoSkip:true,maxRotation:0},grid:{display:false}},
+          y:{stacked:true,ticks:{font:{size:11},callback:v=>nice(v)},grid:{color:'rgba(0,0,0,0.05)'}}
+        }
+      }
+    });
+  }
+}
+['s-init','s-monthly','s-rate','s-years'].forEach(id=>document.getElementById(id).addEventListener('input',update));
+update();
+</script>
+</div>
+</body>
+</html>
