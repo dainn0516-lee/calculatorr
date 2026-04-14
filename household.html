@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
+body{background:#f8f8f8;padding:20px;}
+.wrap{max-width:680px;margin:0 auto;}
+.title-box{text-align:center;margin-bottom:24px;padding:22px 20px 18px;background:#fff;border-radius:16px;border:1px solid #e8e8e8;}
+.title-badge{display:inline-block;background:#EBF4FF;color:#185FA5;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;margin-bottom:10px;}
+.title-main{font-size:20px;font-weight:700;color:#111;line-height:1.4;margin-bottom:6px;}
+.title-main span{color:#0F6E56;}
+.title-sub{font-size:13px;color:#888;line-height:1.6;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;}
+.stat{background:#f3f3f3;border-radius:8px;padding:12px 14px;}
+.stat-l{font-size:11px;color:#888;margin-bottom:3px;}
+.stat-v{font-size:16px;font-weight:600;}
+.section{background:#fff;border:1px solid #e8e8e8;border-radius:12px;overflow:hidden;margin-bottom:16px;}
+.sec-title{font-size:12px;font-weight:600;padding:9px 14px;background:#f8f8f8;border-bottom:1px solid #ececec;letter-spacing:0.3px;}
+.col-hd{font-size:11px;font-weight:500;color:#999;}
+.grid-hd{display:grid;gap:6px;padding:7px 14px;background:#f3f3f3;border-bottom:1px solid #ececec;align-items:center;}
+.grid-row{display:grid;gap:6px;padding:8px 14px;border-bottom:1px solid #f0f0f0;align-items:center;}
+.inp{width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:6px 10px;font-size:13px;text-align:right;background:#fff;color:#111;}
+.inp:focus{outline:none;border-color:#378ADD;}
+.tinp{width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:5px 8px;font-size:12px;background:#fff;color:#111;}
+.tinp:focus{outline:none;border-color:#378ADD;}
+.sinp{width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:4px 8px;font-size:11px;background:#fff;color:#888;}
+.sinp:focus{outline:none;border-color:#378ADD;}
+.type-sel{border:1px solid #e8e8e8;border-radius:6px;padding:4px 5px;font-size:11px;background:#fff;color:#666;cursor:pointer;}
+.del-btn{width:26px;height:26px;border-radius:6px;border:1px solid #f5c2c2;background:transparent;color:#e24b4a;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.del-btn:hover{background:#fff0f0;}
+.add-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border:none;background:transparent;font-size:12px;cursor:pointer;width:100%;color:#888;}
+.add-btn:hover{background:#f8f8f8;}
+.guide{background:#f3f3f3;border-radius:10px;padding:14px 16px;margin-top:4px;}
+.note{margin-top:10px;font-size:11px;color:#bbb;line-height:1.6;}
+@media(max-width:480px){.stats{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="title-box">
+    <div class="title-badge">가계 수입/지출 점검 도구</div>
+    <div class="title-main">내 돈은 어디로 가고 있을까?<br><span>수입·지출 한눈에 점검</span>해보세요!</div>
+    <div class="title-sub">항목을 직접 수정하고 금액을 입력하면<br>비율과 차트가 자동으로 계산돼요 💰</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-l">총 수입</div><div class="stat-v" id="s-income" style="color:#0F6E56;">입력하세요</div></div>
+    <div class="stat"><div class="stat-l">총 지출</div><div class="stat-v" id="s-total" style="color:#e24b4a;">0원</div></div>
+    <div class="stat"><div class="stat-l">잔여</div><div class="stat-v" id="s-remain" style="color:#185FA5;">—</div></div>
+    <div class="stat"><div class="stat-l">저축률</div><div class="stat-v" id="s-saverate" style="color:#185FA5;">—</div></div>
+  </div>
+
+  <div class="section">
+    <div class="sec-title" style="color:#0F6E56;">수입 항목</div>
+    <div class="grid-hd" style="grid-template-columns:26px 1fr 100px 60px 26px;">
+      <div></div><div class="col-hd">항목명 / 설명</div>
+      <div class="col-hd" style="text-align:right;">금액 (원)</div>
+      <div class="col-hd" style="text-align:right;">비율</div><div></div>
+    </div>
+    <div id="income-rows"></div>
+    <div style="padding:7px 14px;border-top:1px dashed #eee;">
+      <button class="add-btn" onclick="addIncome()"><span style="font-size:16px;color:#0F6E56;">+</span>수입 항목 추가</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-title" style="color:#e24b4a;">지출 항목</div>
+    <div class="grid-hd" style="grid-template-columns:26px 1fr 100px 70px 60px 26px;">
+      <div></div><div class="col-hd">항목명 / 설명</div>
+      <div class="col-hd" style="text-align:right;">금액 (원)</div>
+      <div class="col-hd" style="text-align:center;">유형</div>
+      <div class="col-hd" style="text-align:right;">비율</div><div></div>
+    </div>
+    <div id="expense-rows"></div>
+    <div style="padding:7px 14px;border-top:1px dashed #eee;">
+      <button class="add-btn" onclick="addExpense()"><span style="font-size:16px;color:#e24b4a;">+</span>지출 항목 추가</button>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:12px;margin-bottom:10px;font-size:12px;color:#666;flex-wrap:wrap;">
+    <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#1D9E75;"></span>수입</span>
+    <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#378ADD;"></span>고정지출</span>
+    <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#EF9F27;"></span>변동지출</span>
+    <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#7F77DD;"></span>저축/투자</span>
+    <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#888780;"></span>기타</span>
+  </div>
+
+  <div id="chart-outer" style="position:relative;width:100%;height:120px;margin-bottom:16px;">
+    <canvas id="chart"></canvas>
+  </div>
+
+  <div class="guide">
+    <div style="font-size:12px;font-weight:600;color:#111;margin-bottom:10px;">이상적인 지출 비율 가이드</div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:#666;">고정지출 (주거+통신+보험)</span><span style="font-weight:600;color:#185FA5;">30% 이하</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:#666;">변동지출 (식비+교육+여가)</span><span style="font-weight:600;color:#BA7517;">50% 이하</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:#666;">저축/투자</span><span style="font-weight:600;color:#0F6E56;">20% 이상 목표</span></div>
+    </div>
+  </div>
+  <div class="note">※ 금액을 입력하면 비율과 차트가 자동으로 업데이트돼요. 항목명과 유형도 직접 수정 가능해요!</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+let incomes=[
+  {label:'급여',sub:'세후 실수령액',amt:0},
+  {label:'부수입',sub:'블로그/유튜브 수익',amt:0},
+  {label:'아동수당',sub:'자녀 아동수당',amt:0},
+];
+let expenses=[
+  {label:'주거비',sub:'월세/관리비/대출',type:'fixed',amt:0},
+  {label:'식비',sub:'장보기+외식',type:'variable',amt:0},
+  {label:'교육비',sub:'학원/교재/과외',type:'variable',amt:0},
+  {label:'통신비',sub:'휴대폰+인터넷',type:'fixed',amt:0},
+  {label:'교통비',sub:'주유/대중교통',type:'variable',amt:0},
+  {label:'의료/보험',sub:'보험료+병원비',type:'fixed',amt:0},
+  {label:'여가/쇼핑',sub:'문화/취미/의류',type:'variable',amt:0},
+  {label:'저축/투자',sub:'적금+주식+연금',type:'save',amt:0},
+  {label:'기타',sub:'경조사/예비비',type:'etc',amt:0},
+];
+const ec={fixed:'#378ADD',variable:'#EF9F27',save:'#7F77DD',etc:'#888780'};
+let chart;
+
+function fmt(v){
+  if(v>=10000000)return(v/10000000).toFixed(1)+'천만원';
+  if(v>=10000)return Math.round(v/10000)+'만원';
+  return v.toLocaleString()+'원';
+}
+function addIncome(){incomes.push({label:'새 수입',sub:'설명 입력',amt:0});render();update();}
+function delIncome(i){incomes.splice(i,1);render();update();}
+function addExpense(){expenses.push({label:'새 항목',sub:'설명 입력',type:'variable',amt:0});render();update();}
+function delExpense(i){expenses.splice(i,1);render();update();}
+
+function render(){
+  const ic=document.getElementById('income-rows');
+  ic.innerHTML='';
+  incomes.forEach((r,i)=>{
+    const d=document.createElement('div');
+    d.className='grid-row';
+    d.style.gridTemplateColumns='26px 1fr 100px 60px 26px';
+    d.innerHTML=`<div style="width:8px;height:8px;border-radius:2px;background:#1D9E75;margin:auto;"></div>
+      <div style="display:flex;flex-direction:column;gap:3px;">
+        <input class="tinp" value="${r.label}" placeholder="항목명" oninput="incomes[${i}].label=this.value;update();">
+        <input class="sinp" value="${r.sub}" placeholder="설명(선택)" oninput="incomes[${i}].sub=this.value;">
+      </div>
+      <input class="inp" type="number" value="${r.amt||''}" placeholder="0" min="0" oninput="incomes[${i}].amt=+this.value||0;update();">
+      <div style="font-size:12px;color:#888;text-align:right;" id="ipct-${i}">0%</div>
+      <button class="del-btn" onclick="delIncome(${i})">×</button>`;
+    ic.appendChild(d);
+  });
+
+  const ex=document.getElementById('expense-rows');
+  ex.innerHTML='';
+  expenses.forEach((r,i)=>{
+    const d=document.createElement('div');
+    d.className='grid-row';
+    d.style.gridTemplateColumns='26px 1fr 100px 70px 60px 26px';
+    d.innerHTML=`<div style="width:8px;height:8px;border-radius:2px;background:${ec[r.type]};margin:auto;"></div>
+      <div style="display:flex;flex-direction:column;gap:3px;">
+        <input class="tinp" value="${r.label}" placeholder="항목명" oninput="expenses[${i}].label=this.value;update();">
+        <input class="sinp" value="${r.sub}" placeholder="설명(선택)" oninput="expenses[${i}].sub=this.value;">
+      </div>
+      <input class="inp" type="number" value="${r.amt||''}" placeholder="0" min="0" oninput="expenses[${i}].amt=+this.value||0;update();">
+      <select class="type-sel" onchange="expenses[${i}].type=this.value;render();update();">
+        <option value="fixed" ${r.type==='fixed'?'selected':''}>고정</option>
+        <option value="variable" ${r.type==='variable'?'selected':''}>변동</option>
+        <option value="save" ${r.type==='save'?'selected':''}>저축</option>
+        <option value="etc" ${r.type==='etc'?'selected':''}>기타</option>
+      </select>
+      <div style="font-size:12px;color:#888;text-align:right;" id="epct-${i}">0%</div>
+      <button class="del-btn" onclick="delExpense(${i})">×</button>`;
+    ex.appendChild(d);
+  });
+}
+
+function update(){
+  const ti=incomes.reduce((a,r)=>a+r.amt,0);
+  const te=expenses.reduce((a,r)=>a+r.amt,0);
+  const rem=ti-te;
+  const sr=ti>0?Math.round(rem/ti*100):0;
+  const base=ti>0?ti:(te||1);
+
+  document.getElementById('s-income').textContent=ti>0?fmt(ti):'입력하세요';
+  document.getElementById('s-total').textContent=fmt(te);
+  document.getElementById('s-remain').textContent=ti>0?fmt(rem):'—';
+  document.getElementById('s-remain').style.color=rem>=0?'#185FA5':'#e24b4a';
+  document.getElementById('s-saverate').textContent=ti>0?sr+'%':'—';
+  document.getElementById('s-saverate').style.color=sr>=20?'#0F6E56':sr>=10?'#BA7517':'#e24b4a';
+
+  incomes.forEach((r,i)=>{const el=document.getElementById('ipct-'+i);if(el)el.textContent=Math.round(r.amt/base*100)+'%';});
+  expenses.forEach((r,i)=>{const el=document.getElementById('epct-'+i);if(el)el.textContent=Math.round(r.amt/base*100)+'%';});
+
+  const labels=[...incomes.map(r=>r.label),...expenses.map(r=>r.label)];
+  const data=[...incomes.map(r=>r.amt),...expenses.map(r=>r.amt)];
+  const colors=[...incomes.map(()=>'#1D9E75'),...expenses.map(r=>ec[r.type])];
+  const h=Math.max(labels.length*38+60,120);
+  document.getElementById('chart-outer').style.height=h+'px';
+
+  if(chart){chart.data.labels=labels;chart.data.datasets[0].data=data;chart.data.datasets[0].backgroundColor=colors;chart.update();}
+  else{
+    chart=new Chart(document.getElementById('chart'),{
+      type:'bar',
+      data:{labels,datasets:[{data,backgroundColor:colors,borderRadius:5,borderSkipped:false}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt(c.raw)+(ti>0?' ('+Math.round(c.raw/ti*100)+'%)':'')}}},
+        scales:{x:{ticks:{font:{size:11},callback:v=>fmt(v)},grid:{color:'rgba(0,0,0,0.04)'}},y:{ticks:{font:{size:12}},grid:{display:false}}}
+      }
+    });
+  }
+}
+render();update();
+</script>
+</body>
+</html>
